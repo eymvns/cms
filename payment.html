@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paiement - HotelReserve</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://js.stripe.com/v3/"></script>
+    <style>
+        .payment-container {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 40px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        .reservation-summary {
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+        }
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        .total {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #f59e0b;
+            border-top: 2px solid #e5e7eb;
+            padding-top: 15px;
+            margin-top: 15px;
+        }
+        .payment-form {
+            margin-top: 30px;
+        }
+        .btn-pay {
+            width: 100%;
+            padding: 18px;
+            background: #0f172a;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 20px;
+        }
+        .btn-pay:hover {
+            background: #f59e0b;
+            transform: translateY(-2px);
+        }
+        .loading {
+            text-align: center;
+            padding: 4rem;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo"><a href="index.html"><i class="fa-solid fa-hotel"></i> HotelReserve</a></div>
+        <ul class="nav-links">
+            <li><a href="index.html">Retour</a></li>
+        </ul>
+    </nav>
+
+    <div class="payment-container">
+        <h1>Paiement sécurisé</h1>
+        <div id="loading" class="loading">Chargement...</div>
+        <div id="payment-content" style="display: none;">
+            <div class="reservation-summary" id="reservation-summary"></div>
+            <div class="payment-form">
+                <div id="card-element"></div>
+                <div id="card-errors" role="alert"></div>
+                <button class="btn-pay" id="submit-payment">Payer maintenant</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = window.API_URL || 'http://localhost:5000/api';
+        const STRIPE_PUBLISHABLE_KEY = window.STRIPE_PUBLISHABLE_KEY || 'pk_test_your_key';
+        
+        const urlParams = new URLSearchParams(window.location.search);
+        const reservationId = urlParams.get('reservationId');
+        
+        let stripe, elements, cardElement;
+        let reservation = null;
+
+        async function initPayment() {
+            if (!reservationId) {
+                document.getElementById('loading').innerHTML = '<h2>Réservation introuvable</h2>';
+                return;
+            }
+
+            const token = localStorage.getItem('token');
+            if (!token) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            try {
+                // Fetch reservation
+                const resResponse = await fetch(`${API_URL}/reservations/${reservationId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (!resResponse.ok) {
+                    throw new Error('Réservation introuvable');
+                }
+                
+                const resData = await resResponse.json();
+                reservation = resData.reservation;
+
+                // Display summary
+                displaySummary();
+
+                // Initialize Stripe
+                stripe = Stripe(STRIPE_PUBLISHABLE_KEY);
+                elements = stripe.elements();
+                cardElement = elements.create('card');
+                cardElement.mount('#card-element');
+
+                cardElement.on('change', ({error}) => {
+                    const displayError = document.getElementById('card-errors');
+                    if (error) {
+                        displayError.textContent = error.message;
+                    } else {
+                        displayError.textContent = '';
+                    }
+                });
+
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('payment-content').style.display = 'block';
+
+                // Handle payment
+                document.getElementById('submit-payment').addEventListener('click', handlePayment);
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('loading').innerHTML = 
+                    '<h2>Erreur</h2><p>' + error.message + '</p>';
+            }
+        }
+
+        function displaySummary() {
+            const summary = document.getElementById('reservation-summary');
+            summary.innerHTML = `
+                <h3>${reservation.hotel.name}</h3>
+                <div class="summary-item">
+                    <span>Date d'arrivée:</span>
+                    <span>${new Date(reservation.checkIn).toLocaleDateString('fr-FR')}</span>
+                </div>
+                <div class="summary-item">
+                    <span>Date de départ:</span>
+                    <span>${new Date(reservation.checkOut).toLocaleDateString('fr-FR')}</span>
+                </div>
+                <div class="summary-item">
+                    <span>Nombre de nuits:</span>
+                    <span>${reservation.nights}</span>
+                </div>
+                <div class="summary-item">
+                    <span>Nombre de personnes:</span>
+                    <span>${reservation.guests}</span>
+                </div>
+                <div class="summary-item total">
+                    <span>Total:</span>
+                    <span>${reservation.totalPrice} MAD</span>
+                </div>
+            `;
+        }
+
+        async function handlePayment() {
+            const submitButton = document.getElementById('submit-payment');
+            submitButton.disabled = true;
+            submitButton.textContent = 'Traitement...';
+
+            try {
+                // Create payment session
+                const token = localStorage.getItem('token');
+                const sessionResponse = await fetch(`${API_URL}/payments/create-session`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ reservationId })
+                });
+
+                const sessionData = await sessionResponse.json();
+                
+                if (sessionData.url) {
+                    // Redirect to Stripe Checkout
+                    window.location.href = sessionData.url;
+                } else {
+                    // For demo, simulate payment success
+                    await confirmPayment();
+                }
+            } catch (error) {
+                console.error('Payment error:', error);
+                alert('Erreur lors du paiement');
+                submitButton.disabled = false;
+                submitButton.textContent = 'Payer maintenant';
+            }
+        }
+
+        async function confirmPayment() {
+            const token = localStorage.getItem('token');
+            const response = await fetch(`${API_URL}/payments/confirm-payment`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ 
+                    reservationId,
+                    sessionId: 'demo_session_' + Date.now()
+                })
+            });
+
+            if (response.ok) {
+                alert('Paiement confirmé avec succès!');
+                window.location.href = 'index.html';
+            } else {
+                throw new Error('Erreur de confirmation');
+            }
+        }
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', initPayment);
+    </script>
+</body>
+</html>
+
