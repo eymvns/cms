@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HotelReserve - L'évasion commence ici</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="logo"><a href="index.html"><i class="fa-solid fa-hotel"></i> HotelReserve</a></div>
+        <ul class="nav-links">
+            <li><a href="index.html">Accueil</a></li>
+            <li><a href="#destinations">Destinations</a></li>
+            <li><a href="#offres">Promotions</a></li>
+            <li><a href="#" class="btn-login" onclick="openLoginModal()"><i class="fa-regular fa-user"></i> Connexion</a></li>
+        </ul>
+        <div class="burger">
+            <div class="line1"></div>
+            <div class="line2"></div>
+            <div class="line3"></div>
+        </div>
+    </nav>
+
+    <header class="hero">
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <h1>Découvrez le Maroc authentique</h1>
+            <p>Plus de 100 destinations uniques, du désert aux montagnes de l'Atlas.</p>
+            
+            <div class="search-box">
+                <div class="input-group">
+                    <label><i class="fa-solid fa-location-dot"></i> Destination</label>
+                    <input type="text" id="destination" placeholder="Ex: Marrakech, Agadir...">
+                </div>
+                <div class="divider"></div>
+                <div class="input-group">
+                    <label><i class="fa-regular fa-calendar"></i> Dates</label>
+                    <input type="text" placeholder="Quand partez-vous ?" onfocus="(this.type='date')" onblur="(this.type='text')">
+                </div>
+                <button onclick="searchHotels()"><i class="fa-solid fa-magnifying-glass"></i></button>
+            </div>
+        </div>
+    </header>
+
+    <section class="container" id="destinations">
+        <div class="section-header">
+            <h2>Nos meilleures offres</h2>
+            <p>Sélectionnés pour leur charme, leur confort et leur prix.</p>
+        </div>
+
+        <div class="filter-container">
+            <button class="filter-btn active" onclick="filterHotels('all')">Tout voir</button>
+            <button class="filter-btn" onclick="filterHotels('Marrakech')">Marrakech</button>
+            <button class="filter-btn" onclick="filterHotels('Casablanca')">Casablanca</button>
+            <button class="filter-btn" onclick="filterHotels('Agadir')">Agadir</button>
+            <button class="filter-btn" onclick="filterHotels('Fès')">Fès</button>
+            <button class="filter-btn" onclick="filterHotels('Rabat')">Rabat</button>
+            <button class="filter-btn" onclick="filterHotels('Tanger')">Tanger</button>
+            <button class="filter-btn" onclick="filterHotels('Nord')">Nord</button>
+            <button class="filter-btn" onclick="filterHotels('Villes Impériales')">Villes Impériales</button>
+            <button class="filter-btn" onclick="filterHotels('Désert')">Désert</button>
+            <button class="filter-btn" onclick="filterHotels('Atlas Mountains')">Atlas</button>
+            <button class="filter-btn" onclick="filterHotels('Luxe')">Luxe</button>
+            <button class="filter-btn" onclick="filterHotels('Business')">Business</button>
+            <button class="filter-btn" onclick="filterHotels('Economique')">Économique</button>
+        </div>
+        
+        <div id="message-container"></div>
+
+        <div id="hotel-list" class="hotel-grid">
+            </div>
+    </section>
+
+    <footer>
+        <div class="footer-container">
+            <div class="footer-col">
+                <h3><i class="fa-solid fa-hotel"></i> HotelReserve</h3>
+                <p>Votre partenaire de voyage de confiance au Maroc. Réservation sécurisée et service client 24/7.</p>
+            </div>
+            <div class="footer-col">
+                <h4>Explorer</h4>
+                <ul>
+                    <li><a href="#">Villes Impériales</a></li>
+                    <li><a href="#">Stations Balnéaires</a></li>
+                    <li><a href="#">Bivouacs de Luxe</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Aide</h4>
+                <p><i class="fa-solid fa-phone"></i> +212 5 22 00 00 00</p>
+                <p><i class="fa-solid fa-envelope"></i> support@hotelreserve.ma</p>
+                <div class="socials">
+                    <i class="fa-brands fa-facebook"></i>
+                    <i class="fa-brands fa-instagram"></i>
+                    <i class="fa-brands fa-whatsapp"></i>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            &copy; 2026 HotelReserve. Tous droits réservés.
+        </div>
+    </footer>
+
+    <!-- Login Modal -->
+    <div id="login-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeLoginModal()">&times;</span>
+            <h2>Connexion</h2>
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="login-email">Email</label>
+                    <input type="email" id="login-email" required>
+                </div>
+                <div class="form-group">
+                    <label for="login-password">Mot de passe</label>
+                    <input type="password" id="login-password" required>
+                </div>
+                <button type="submit" class="btn-login-submit">Se connecter</button>
+            </form>
+            <p>Pas encore de compte ? <a href="#" onclick="switchToRegister()">S'inscrire</a></p>
+        </div>
+    </div>
+
+    <!-- Register Modal -->
+    <div id="register-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeRegisterModal()">&times;</span>
+            <h2>Inscription</h2>
+            <form id="register-form">
+                <div class="form-group">
+                    <label for="register-name">Nom complet</label>
+                    <input type="text" id="register-name" required>
+                </div>
+                <div class="form-group">
+                    <label for="register-email">Email</label>
+                    <input type="email" id="register-email" required>
+                </div>
+                <div class="form-group">
+                    <label for="register-phone">Téléphone</label>
+                    <input type="tel" id="register-phone" required>
+                </div>
+                <div class="form-group">
+                    <label for="register-password">Mot de passe</label>
+                    <input type="password" id="register-password" required>
+                </div>
+                <button type="submit" class="btn-register-submit">S'inscrire</button>
+            </form>
+            <p>Déjà un compte ? <a href="#" onclick="switchToLogin()">Se connecter</a></p>
+        </div>
+    </div>
+
+    <!-- OTP Modal -->
+    <div id="otp-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeOtpModal()">&times;</span>
+            <h2>Vérification OTP</h2>
+            <p>Un code OTP a été envoyé à votre téléphone. Entrez-le pour vérifier votre compte.</p>
+            <form id="otp-form">
+                <div class="form-group">
+                    <label for="otp-code">Code OTP</label>
+                    <input type="text" id="otp-code" maxlength="6" required>
+                </div>
+                <button type="submit" class="btn-otp-submit">Vérifier</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
