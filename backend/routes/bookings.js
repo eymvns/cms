@@ -6,7 +6,7 @@ const { auth, admin } = require('../middleware/auth');
 
 const router = express.Router();
 
-// Get user's bookings
+// Get user's bookings//
 router.get('/', auth, async (req, res) => {
   try {
     const bookings = await Booking.find({ user: req.user._id })
