@@ -4,18 +4,16 @@ import { useAuth } from '../context/AuthContext';
 import './Auth.css';
 
 const Auth = () => {
-  const [mode, setMode] = useState('login'); // 'login', 'register', 'otp'
+  const [mode, setMode] = useState('login'); // 'login', 'register'
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    phone: '',
-    password: '',
-    otp: ''
+    password: ''
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   
-  const { login, register, verifyOTP } = useAuth();
+  const { login, register } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -28,10 +26,8 @@ const Auth = () => {
         await login(formData.email, formData.password);
         navigate('/');
       } else if (mode === 'register') {
-        await register(formData.name, formData.email, formData.phone, formData.password);
-        setMode('otp');
-      } else if (mode === 'otp') {
-        await verifyOTP(formData.email, formData.otp);
+        await register(formData.name, formData.email, formData.password);
+        await login(formData.email, formData.password);
         navigate('/');
       }
     } catch (err) {
@@ -48,7 +44,6 @@ const Auth = () => {
           <h2>
             {mode === 'login' && 'Connexion'}
             {mode === 'register' && 'Inscription'}
-            {mode === 'otp' && 'Vérification OTP'}
           </h2>
         </div>
 
@@ -79,20 +74,6 @@ const Auth = () => {
                 />
               </div>
 
-              {mode === 'register' && (
-                <div className="form-group">
-                  <label>Téléphone (+212XXXXXXXXX)</label>
-                  <input
-                    type="tel"
-                    required
-                    pattern="^\+212\d{9}$"
-                    value={formData.phone}
-                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                    placeholder="+212612345678"
-                  />
-                </div>
-              )}
-
               <div className="form-group">
                 <label>Mot de passe</label>
                 <input
@@ -106,26 +87,9 @@ const Auth = () => {
             </>
           )}
 
-          {mode === 'otp' && (
-            <div className="form-group">
-              <label>Code OTP</label>
-              <input
-                type="text"
-                required
-                maxLength="6"
-                value={formData.otp}
-                onChange={(e) => setFormData({ ...formData, otp: e.target.value })}
-                placeholder="Entrez le code à 6 chiffres"
-              />
-              <small>Un code OTP a été envoyé à votre téléphone</small>
-            </div>
-          )}
-
           <button type="submit" className="btn-submit" disabled={loading}>
             {loading ? 'Chargement...' : (
-              mode === 'login' ? 'Se connecter' :
-              mode === 'register' ? 'S\'inscrire' :
-              'Vérifier'
+              mode === 'login' ? 'Se connecter' : 'S\'inscrire'
             )}
           </button>
         </form>

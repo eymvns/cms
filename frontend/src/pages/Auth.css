@@ -23,7 +23,7 @@
 
 .auth-header h2 {
   font-size: 2rem;
-  color: #0f172a;
+  color: #6366F1;
   margin-bottom: 10px;
 }
 
@@ -49,7 +49,7 @@
 
 .form-group input:focus {
   outline: none;
-  border-color: #f59e0b;
+  border-color: #6366F1;
 }
 
 .form-group small {
@@ -62,7 +62,7 @@
 .btn-submit {
   width: 100%;
   padding: 14px;
-  background: #0f172a;
+  background: #6366F1;
   color: #ffffff;
   border: none;
   border-radius: 8px;
@@ -74,7 +74,7 @@
 }
 
 .btn-submit:hover:not(:disabled) {
-  background: #f59e0b;
+  background: #6366F1;
 }
 
 .btn-submit:disabled {
@@ -98,7 +98,7 @@
 }
 
 .auth-footer a {
-  color: #f59e0b;
+  color: #6366F1;
   text-decoration: none;
   font-weight: 500;
 }

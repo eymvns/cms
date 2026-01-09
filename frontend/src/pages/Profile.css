@@ -21,7 +21,7 @@
 
 .profile-header h1 {
   font-size: 2rem;
-  color: #0f172a;
+  color: #6366F1;
   margin-bottom: 20px;
 }
 
@@ -35,7 +35,7 @@
   width: 80px;
   height: 80px;
   border-radius: 50%;
-  background: #f59e0b;
+  background: #6366F1;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -45,7 +45,7 @@
 
 .user-info h2 {
   font-size: 1.5rem;
-  color: #0f172a;
+  color: #6366F1;
   margin-bottom: 5px;
 }
 
@@ -75,8 +75,8 @@
 }
 
 .tabs button.active {
-  color: #0f172a;
-  border-bottom-color: #f59e0b;
+  color: #6366F1;
+  border-bottom-color: #6366F1;
 }
 
 .reservations-list {
@@ -101,7 +101,7 @@
 
 .reservation-info h3 {
   font-size: 1.2rem;
-  color: #0f172a;
+  color: #6366F1;
   margin-bottom: 10px;
 }
 
@@ -113,7 +113,7 @@
 .reservation-info .price {
   font-size: 1.3rem;
   font-weight: 700;
-  color: #f59e0b;
+  color: #6366F1;
   margin-top: 10px;
 }
 
@@ -175,7 +175,7 @@
 .no-reservations button {
   margin-top: 20px;
   padding: 12px 24px;
-  background: #0f172a;
+  background: #6366F1;
   color: white;
   border: none;
   border-radius: 8px;
@@ -184,7 +184,7 @@
 
 .settings-section h3 {
   font-size: 1.5rem;
-  color: #0f172a;
+  color: #6366F1;
   margin-bottom: 20px;
 }
 

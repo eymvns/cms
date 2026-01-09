@@ -16,7 +16,6 @@ const userSchema = new mongoose.Schema({
   },
   phone: {
     type: String,
-    required: true,
     trim: true,
     match: [/^\+212\d{9}$/, 'Phone must be a valid Moroccan number (+212XXXXXXXXX)']
   },
@@ -50,6 +49,10 @@ const userSchema = new mongoose.Schema({
     enum: ['user', 'admin'],
     default: 'user'
   },
+  tripsTaken: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Booking'
+  }],
   avatar: {
     type: String,
     default: null

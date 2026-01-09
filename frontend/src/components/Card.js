@@ -1,10 +1,44 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
 const Card = ({ trip, className = '' }) => {
-  if (!trip) return null;
+  // Utilisez une image de covoiturage par défaut cohérente
+  const defaultCarImage = 'https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=800&h=600&fit=crop';
+  
+  // Image de secours en cas d'erreur
+  const fallbackImage = 'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=800&h=600&fit=crop';
 
-  const imageUrl = trip.image || `https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=800&h=600&fit=crop`;
+  // Utiliser l'image du trajet ou une image par défaut
+  const getDefaultImage = () => {
+    return defaultCarImage;
+  };
+
+  // Déterminer l'image à utiliser
+  const initialImage = trip?.image && trip.image.trim() !== '' 
+    ? trip.image 
+    : getDefaultImage();
+  
+  const [imageUrl, setImageUrl] = useState(initialImage);
+  const [imageError, setImageError] = useState(false);
+
+  // Gérer les erreurs de chargement d'image
+  const handleImageError = () => {
+    if (imageUrl !== fallbackImage) {
+      setImageUrl(fallbackImage);
+    }
+  };
+
+  // Mettre à jour l'image si le trip change
+  useEffect(() => {
+    if (trip?.image && trip.image.trim() !== '') {
+      setImageUrl(trip.image);
+      setImageError(false);
+    } else {
+      setImageUrl(getDefaultImage());
+    }
+  }, [trip?.image, trip?._id]);
+
+  if (!trip) return null;
 
   return (
     <Link
@@ -18,6 +52,7 @@ const Card = ({ trip, className = '' }) => {
           alt={`${trip.departure} → ${trip.arrival}`}
           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
           loading="lazy"
+          onError={handleImageError}
         />
         <div className="absolute top-4 right-4 bg-white rounded-full px-3 py-1 shadow-md">
           <span className="text-sm font-semibold text-gray-900">{trip.price} MAD</span>

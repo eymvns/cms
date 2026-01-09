@@ -36,7 +36,6 @@ const router = express.Router();
 const registerSchema = Joi.object({
   name: Joi.string().min(2).max(50).required(),
   email: Joi.string().email().required(),
-  phone: Joi.string().pattern(/^\+212\d{9}$/).required(),
   password: Joi.string().min(6).required()
 });
 
@@ -56,35 +55,26 @@ router.post('/register', async (req, res) => {
     const { error } = registerSchema.validate(req.body);
     if (error) return res.status(400).json({ message: error.details[0].message });
 
-    const { name, email, phone, password } = req.body;
+    const { name, email, password } = req.body;
 
     // Check if user exists
-    const existingUser = await User.findOne({ $or: [{ email }, { phone }] });
+    const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return res.status(400).json({ message: 'User already exists with this email or phone' });
+      return res.status(400).json({ message: 'User already exists with this email' });
     }
 
-    // Generate OTP
-    const otp = generateOTP();
-    const otpExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
-
-    // Create user (not verified yet)
+    // Create user (verified by default since no phone verification)
     const user = new User({
       name,
       email,
-      phone,
       password,
-      otp,
-      otpExpires
+      verified: true
     });
 
     await user.save();
 
-    // Send OTP (simulate)
-    await sendOTP(phone, otp);
-
     res.status(201).json({ 
-      message: 'User registered. Please verify your account with OTP sent to your phone.',
+      message: 'User registered successfully.',
       userId: user._id 
     });
   } catch (error) {

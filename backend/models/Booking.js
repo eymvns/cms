@@ -29,6 +29,11 @@ const bookingSchema = new mongoose.Schema({
     type: String,
     default: null
   },
+  payment: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Payment',
+    default: null
+  },
   createdAt: {
     type: Date,
     default: Date.now

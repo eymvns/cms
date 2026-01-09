@@ -99,8 +99,15 @@ router.post('/', auth, async (req, res) => {
 router.get('/:id', auth, async (req, res) => {
   try {
     const booking = await Booking.findById(req.params.id)
-      .populate('trip', 'departure arrival date time price')
-      .populate('user', 'name email phone');
+      .populate('user', 'name email phone')
+      .populate({
+        path: 'trip',
+        select: 'departure destination date time price driver',
+        populate: {
+          path: 'driver',
+          select: 'name email phone'
+        }
+      });
 
     if (!booking) {
       return res.status(404).json({ message: 'Booking not found' });

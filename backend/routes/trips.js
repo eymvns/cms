@@ -59,10 +59,31 @@ router.get('/', optionalAuth, async (req, res) => {
       .limit(options.limit)
       .populate('driver', 'name rating');
 
+    // Liste d'images par défaut pour les trajets sans image
+    const defaultCarImages = [
+      'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=800&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=800&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=800&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1502877338535-766e1452684a?w=800&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=800&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1555215695-3004980ad54e?w=800&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1550355291-bbee04a92027?w=800&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1549924231-f129b911e442?w=800&h=600&fit=crop',
+    ];
+
+    // S'assurer que tous les trajets ont une image
+    const tripsWithImages = trips.map((trip, index) => {
+      if (!trip.image || trip.image.trim() === '') {
+        const imageIndex = (trip._id.toString().charCodeAt(0) + index) % defaultCarImages.length;
+        trip.image = defaultCarImages[imageIndex];
+      }
+      return trip;
+    });
+
     const total = await Trip.countDocuments(query);
 
     res.json({
-      trips,
+      trips: tripsWithImages,
       pagination: {
         page: options.page,
         limit: options.limit,
@@ -84,6 +105,24 @@ router.get('/:id', optionalAuth, async (req, res) => {
 
     if (!trip) {
       return res.status(404).json({ message: 'Trip not found' });
+    }
+
+    // Liste d'images par défaut pour les trajets sans image
+    const defaultCarImages = [
+      'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=800&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=800&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=800&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1502877338535-766e1452684a?w=800&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=800&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1555215695-3004980ad54e?w=800&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1550355291-bbee04a92027?w=800&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1549924231-f129b911e442?w=800&h=600&fit=crop',
+    ];
+
+    // S'assurer que le trajet a une image
+    if (!trip.image || trip.image.trim() === '') {
+      const imageIndex = trip._id.toString().charCodeAt(0) % defaultCarImages.length;
+      trip.image = defaultCarImages[imageIndex];
     }
 
     res.json({ trip });

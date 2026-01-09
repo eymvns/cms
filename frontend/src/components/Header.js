@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import SearchBar from './SearchBar';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -30,7 +29,7 @@ const Header = () => {
     <header className={`sticky top-0 z-50 transition-all duration-300 ${
       isScrolled || !isHomePage 
         ? 'bg-white shadow-md border-b border-gray-200' 
-        : 'bg-transparent'
+        : 'bg-black/30 backdrop-blur-sm'
     }`}>
       <nav className="container-custom">
         <div className="flex items-center justify-between h-20">
@@ -39,22 +38,15 @@ const Header = () => {
             to="/" 
             className={`flex items-center gap-2 text-2xl font-bold transition-colors ${
               isScrolled || !isHomePage ? 'text-gray-900' : 'text-white'
-            } hover:text-primary`}
+            } hover:text-accent-DEFAULT`}
           >
             <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
               <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
               </svg>
             </div>
             <span className="hidden sm:inline">EYM</span>
           </Link>
-
-          {/* Desktop Search Bar (not on home) */}
-          {!isHomePage && (
-            <div className="hidden lg:flex flex-1 max-w-xl mx-8">
-              <SearchBar />
-            </div>
-          )}
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-6">
@@ -63,7 +55,7 @@ const Header = () => {
               className={`font-medium transition-colors ${
                 isScrolled || !isHomePage 
                   ? 'text-gray-700 hover:text-primary' 
-                  : 'text-white/90 hover:text-white'
+                  : 'text-white hover:text-accent-DEFAULT'
               }`}
             >
               Accueil
@@ -73,7 +65,7 @@ const Header = () => {
               className={`font-medium transition-colors ${
                 isScrolled || !isHomePage 
                   ? 'text-gray-700 hover:text-primary' 
-                  : 'text-white/90 hover:text-white'
+                  : 'text-white hover:text-accent-DEFAULT'
               }`}
             >
               Rechercher
@@ -84,7 +76,7 @@ const Header = () => {
                 className={`font-medium transition-colors ${
                   isScrolled || !isHomePage 
                     ? 'text-gray-700 hover:text-primary' 
-                    : 'text-white/90 hover:text-white'
+                    : 'text-white hover:text-accent-DEFAULT'
                 }`}
               >
                 Admin
@@ -140,7 +132,7 @@ const Header = () => {
                   className={`font-medium transition-colors ${
                     isScrolled || !isHomePage 
                       ? 'text-gray-700 hover:text-primary' 
-                      : 'text-white/90 hover:text-white'
+                      : 'text-white hover:text-accent-DEFAULT'
                   }`}
                 >
                   Connexion

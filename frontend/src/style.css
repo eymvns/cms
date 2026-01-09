@@ -1,8 +1,8 @@
 /* --- Variables & Reset --- */
 :root {
-    --primary: #0f172a;
-    --accent: #f59e0b;
-    --accent-hover: #d97706;
+    --primary: #6366F1;
+    --accent: #EC4899;
+    --accent-hover: #DB2777;
     --bg-light: #f8fafc; /* Fond légèrement plus clair */
     --text-main: #1f2937;
     --text-light: #6b7280;

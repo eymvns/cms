@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
+const { MongoMemoryServer } = require('mongodb-memory-server');
 require('dotenv').config();
 
 const app = express();
@@ -21,12 +22,34 @@ const limiter = rateLimit({
 app.use(limiter);
 
 // Database connection
-mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/voima', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-})
-.then(() => console.log('MongoDB connected'))
-.catch(err => console.log(err));
+async function connectDB() {
+  try {
+    let mongoUri;
+
+    if (process.env.MONGO_URI) {
+      // Use provided MongoDB URI
+      mongoUri = process.env.MONGO_URI;
+      console.log('📡 Using MONGO_URI from environment');
+    } else {
+      // Use local MongoDB
+      mongoUri = 'mongodb://localhost:27017/hotelreserve';
+      console.log('📡 Using local MongoDB: mongodb://localhost:27017/hotelreserve');
+    }
+
+    await mongoose.connect(mongoUri, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
+
+    console.log('✅ MongoDB connected successfully');
+  } catch (error) {
+    console.error('❌ MongoDB connection error:', error);
+    console.error('💡 Make sure MongoDB is running: mongod');
+    process.exit(1);
+  }
+}
+
+connectDB();
 
 // Serve static files (uploads)
 app.use('/uploads', express.static('uploads'));

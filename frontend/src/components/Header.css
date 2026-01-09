@@ -13,7 +13,7 @@
 .logo a {
   font-size: 1.5rem;
   font-weight: 800;
-  color: #0f172a;
+  color: #6366F1;
   text-decoration: none;
   display: flex;
   align-items: center;
@@ -38,11 +38,11 @@
 }
 
 .nav-links a:hover {
-  color: #f59e0b;
+  color: #6366F1;
 }
 
 .btn-login {
-  background-color: #0f172a;
+  background-color: #6366F1;
   color: #ffffff !important;
   padding: 10px 24px;
   border-radius: 50px;
@@ -54,7 +54,7 @@
 }
 
 .btn-login:hover {
-  background-color: #f59e0b;
+  background-color: #6366F1;
   transform: translateY(-2px);
 }
 

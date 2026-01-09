@@ -23,9 +23,14 @@ const TripDetail = () => {
     try {
       setLoading(true);
       const response = await api.get(`/trips/${id}`);
-      setTrip(response.data.trip);
+      if (response.data && response.data.trip) {
+        setTrip(response.data.trip);
+      } else {
+        setTrip(null);
+      }
     } catch (error) {
       console.error('Error fetching trip:', error);
+      setTrip(null);
     } finally {
       setLoading(false);
     }
@@ -53,14 +58,26 @@ const TripDetail = () => {
   };
 
   if (loading) {
-    return <div className="loading">Chargement...</div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+    );
   }
 
   if (!trip) {
     return (
-      <div className="error-page">
-        <h2>Trajet introuvable</h2>
-        <button onClick={() => navigate('/')}>Retour à l'accueil</button>
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">Trajet introuvable</h2>
+          <p className="text-gray-600 mb-6">Le trajet que vous recherchez n'existe pas ou a été supprimé.</p>
+          <button 
+            onClick={() => navigate('/')}
+            className="bg-primary text-white px-6 py-3 rounded-lg font-semibold hover:bg-primary-hover transition-colors"
+          >
+            Retour à l'accueil
+          </button>
+        </div>
       </div>
     );
   }

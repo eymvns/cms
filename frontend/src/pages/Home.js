@@ -37,21 +37,21 @@ const Home = () => {
   return (
     <div className="min-h-screen bg-white">
       {/* Hero Section */}
-      <section className="relative h-[85vh] min-h-[600px] flex items-center justify-center bg-gradient-to-br from-primary via-primary-light to-accent">
+      <section className="relative h-[85vh] min-h-[600px] flex items-center justify-center bg-gradient-to-br from-primary via-primary-light to-accent-DEFAULT">
         <div className="absolute inset-0 bg-black/20"></div>
         <div 
           className="absolute inset-0 bg-cover bg-center opacity-30"
           style={{
-            backgroundImage: "url('https://images.unsplash.com/photo-1539020140153-e479b8c22e70?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80')"
+            backgroundImage: "url('https://images.unsplash.com/photo-1449824913935-59a10b8d2000?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80')"
           }}
         ></div>
         
         <div className="container-custom relative z-10 text-center">
           <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 animate-fade-in">
-            Voyagez ensemble au Maroc
+            Roulez ensemble au Maroc 🚗
           </h1>
           <p className="text-xl md:text-2xl text-white/90 mb-12 max-w-2xl mx-auto animate-slide-up">
-            Trouvez des covoiturages pour découvrir le Maroc de manière économique et conviviale
+            Découvrez le Maroc en covoiturage : économique, écologique et convivial !
           </p>
           
           <div className="animate-scale-in">
@@ -84,10 +84,10 @@ const Home = () => {
         <div className="container-custom">
           <div className="mb-12 text-center">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-3">
-              <span className="gradient-text">Trajets disponibles</span>
+              <span className="gradient-text">Trajets en voiture disponibles</span>
             </h2>
             <p className="text-lg text-gray-600">
-              Rejoignez des conducteurs pour voyager ensemble
+              Montez à bord et partez à l'aventure !
             </p>
           </div>
 
@@ -106,12 +106,12 @@ const Home = () => {
             </div>
           ) : trips.length === 0 ? (
             <div className="text-center py-20">
-              <div className="text-6xl mb-4">🚗</div>
+              <div className="text-6xl mb-4">�</div>
               <h3 className="text-2xl font-bold text-gray-900 mb-2">
-                Aucun trajet disponible
+                Aucun trajet en voiture disponible
               </h3>
               <p className="text-gray-600 mb-8">
-                Soyez le premier à publier un trajet !
+                Soyez le premier à proposer un covoiturage !
               </p>
               <button
                 onClick={() => navigate('/auth')}
@@ -134,10 +134,10 @@ const Home = () => {
       <section className="py-20 bg-gradient-to-r from-primary to-primary-light">
         <div className="container-custom text-center">
           <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
-            Prêt à voyager ?
+            Prêt à prendre la route ? 🛣️
           </h2>
           <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto">
-            Rejoignez notre communauté de voyageurs et découvrez le Maroc autrement
+            Rejoignez notre communauté de conducteurs et passagers pour des voyages inoubliables
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <button
@@ -150,7 +150,7 @@ const Home = () => {
               onClick={() => navigate('/search')}
               className="btn-secondary bg-white/10 text-white border-white/30 hover:bg-white/20"
             >
-              Explorer les trajets
+              Trouver un covoiturage
             </button>
           </div>
         </div>

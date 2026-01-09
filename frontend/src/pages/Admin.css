@@ -15,7 +15,7 @@
 
 .admin-container h1 {
   font-size: 2rem;
-  color: #0f172a;
+  color: #6366F1;
   margin-bottom: 30px;
 }
 
@@ -40,8 +40,8 @@
 }
 
 .admin-tabs button.active {
-  color: #0f172a;
-  border-bottom-color: #f59e0b;
+  color: #6366F1;
+  border-bottom-color: #6366F1;
 }
 
 .stats-grid {
@@ -69,7 +69,7 @@
 .stat-number {
   font-size: 2.5rem;
   font-weight: 700;
-  color: #0f172a;
+  color: #6366F1;
   margin: 10px 0;
 }
 
@@ -98,7 +98,7 @@
 .admin-table th {
   background: #f8fafc;
   font-weight: 600;
-  color: #0f172a;
+  color: #6366F1;
 }
 
 .badge {
@@ -140,7 +140,7 @@
 
 .btn-small {
   padding: 6px 12px;
-  background: #0f172a;
+  background: #6366F1;
   color: white;
   border: none;
   border-radius: 6px;
@@ -150,7 +150,7 @@
 }
 
 .btn-small:hover {
-  background: #f59e0b;
+  background: #6366F1;
 }
 
 .admin-table select {
@@ -174,7 +174,7 @@
 }
 
 .hotel-item h3 {
-  color: #0f172a;
+  color: #6366F1;
   margin-bottom: 5px;
 }
 

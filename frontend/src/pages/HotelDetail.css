@@ -30,7 +30,7 @@
 
 .hotel-title h1 {
   font-size: 2.5rem;
-  color: #0f172a;
+  color: #6366F1;
   margin-bottom: 5px;
 }
 
@@ -46,7 +46,7 @@
 .hotel-price .price {
   font-size: 2rem;
   font-weight: 700;
-  color: #f59e0b;
+  color: #6366F1;
 }
 
 .hotel-price span {
@@ -76,12 +76,12 @@
 }
 
 .feature-item:hover {
-  border-color: #f59e0b;
+  border-color: #6366F1;
   background: white;
 }
 
 .feature-item i {
-  color: #f59e0b;
+  color: #6366F1;
 }
 
 .description {
@@ -102,7 +102,7 @@
 }
 
 .btn-reserve-big {
-  background: #0f172a;
+  background: #6366F1;
   color: white;
   padding: 18px 40px;
   border-radius: 50px;
@@ -111,12 +111,13 @@
   border: none;
   cursor: pointer;
   transition: all 0.3s;
-  box-shadow: 0 10px 20px rgba(15, 23, 42, 0.2);
+  box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3);
 }
 
 .btn-reserve-big:hover {
   transform: translateY(-3px);
-  background: #f59e0b;
+  background: #4F46E5;
+  box-shadow: 0 12px 24px rgba(99, 102, 241, 0.4);
 }
 
 .modal {
@@ -152,7 +153,7 @@
 }
 
 .close:hover {
-  color: #0f172a;
+  color: #6366F1;
 }
 
 .form-group {
@@ -177,7 +178,7 @@
 .btn-reserve-submit {
   width: 100%;
   padding: 14px;
-  background: #0f172a;
+  background: #6366F1;
   color: #ffffff;
   border: none;
   border-radius: 8px;
@@ -188,7 +189,7 @@
 }
 
 .btn-reserve-submit:hover {
-  background: #f59e0b;
+  background: #6366F1;
 }
 
 .loading, .error-page {
@@ -202,7 +203,7 @@
 
 .error-page button {
   padding: 12px 24px;
-  background: #0f172a;
+  background: #6366F1;
   color: white;
   border: none;
   border-radius: 8px;
