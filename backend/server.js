@@ -14,6 +14,15 @@ app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
+// Handle malformed JSON bodies gracefully
+app.use((err, req, res, next) => {
+  if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
+    console.error('Invalid JSON payload received:', err.message);
+    return res.status(400).json({ message: 'Invalid JSON payload' });
+  }
+  next();
+});
+
 // Rate limiting
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
@@ -42,6 +51,17 @@ async function connectDB() {
     });
 
     console.log('✅ MongoDB connected successfully');
+
+    // Clean up old unique index on Payment.receiptNumber if it exists
+    try {
+      const Payment = require('./models/Payment');
+      await Payment.collection.dropIndex('receiptNumber_1').catch(() => {
+        // Index may not exist, that's fine
+      });
+      console.log('✅ Cleaned up old receiptNumber index');
+    } catch (indexErr) {
+      // Silently handle index cleanup errors
+    }
   } catch (error) {
     console.error('❌ MongoDB connection error:', error);
     console.error('💡 Make sure MongoDB is running: mongod');

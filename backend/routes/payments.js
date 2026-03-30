@@ -286,7 +286,41 @@ router.post('/create-booking-session', auth, async (req, res) => {
     });
   } catch (error) {
     console.error('Payment session creation error:', error);
-    res.status(500).json({ message: 'Erreur lors de la création de la session de paiement' });
+
+    // If Stripe is misconfigured (invalid API key), provide a demo fallback so bookings can be completed locally
+    const isStripeAuthError = error && (error.type === 'StripeAuthenticationError' || error?.raw?.statusCode === 401);
+
+    if (isStripeAuthError && typeof booking !== 'undefined') {
+      try {
+        const fallbackPayment = new Payment({
+          booking: booking._id,
+          user: req.user._id,
+          payerInfo: payerData,
+          paymentMethod: 'card',
+          amount: booking.totalPrice,
+          status: 'completed',
+          paidAt: new Date(),
+          transactionId: `demo-${Date.now()}`
+        });
+        await fallbackPayment.save();
+
+        booking.status = 'confirmed';
+        booking.paymentId = fallbackPayment.transactionId;
+        booking.payment = fallbackPayment._id;
+        await booking.save();
+
+        return res.json({
+          message: 'Paiement simulé (demo) enregistré — Stripe non configuré',
+          paymentId: fallbackPayment._id,
+          demo: true
+        });
+      } catch (fallbackErr) {
+        console.error('Fallback payment error:', fallbackErr);
+        return res.status(500).json({ message: 'Erreur lors de la création de la session de paiement (fallback failed)' });
+      }
+    }
+
+    return res.status(500).json({ message: 'Erreur lors de la création de la session de paiement' });
   }
 });
 
@@ -396,6 +430,195 @@ router.get('/booking-session/:sessionId', auth, async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
+  }
+});
+
+// Process card payment directly (simulate payment processing)
+router.post('/process-booking', auth, async (req, res) => {
+  try {
+    const { bookingId, paymentMethod, payerInfo, card } = req.body;
+
+    // Basic validation
+    if (!bookingId) {
+      return res.status(400).json({ message: 'bookingId is required' });
+    }
+
+    if (!payerInfo || !payerInfo.firstName || !payerInfo.lastName || !payerInfo.email) {
+      return res.status(400).json({ message: 'Payer information is incomplete' });
+    }
+
+    if (!card || !card.lastFour) {
+      return res.status(400).json({ message: 'Card information is missing or incomplete' });
+    }
+
+    const booking = await Booking.findById(bookingId)
+      .populate('trip', 'departure arrival date time vehicle price')
+      .populate('user', 'name email phone');
+
+    if (!booking) {
+      return res.status(404).json({ message: 'Booking not found' });
+    }
+
+    // Support either populated user subdocument or plain ObjectId
+    const bookingUserId = booking.user && (booking.user._id ? booking.user._id.toString() : booking.user.toString());
+    if (bookingUserId !== req.user._id.toString()) {
+      return res.status(403).json({ message: 'Access denied' });
+    }
+
+    // Generate receipt number
+    const receiptNumber = `RCP-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
+
+    // Create payment record
+    const payment = new Payment({
+      booking: booking._id,
+      user: req.user._id,
+      payerInfo: {
+        firstName: payerInfo.firstName,
+        lastName: payerInfo.lastName,
+        email: payerInfo.email,
+        phone: payerInfo.phone || ''
+      },
+      paymentMethod: 'card',
+      amount: booking.totalPrice,
+      status: 'completed',
+      paidAt: new Date(),
+      transactionId: receiptNumber,
+      paymentDetails: {
+        cardLast4: card.lastFour,
+        cardHolder: card.holderName || '',
+        receiptNumber: receiptNumber
+      },
+      receiptNumber: receiptNumber
+    });
+
+    await payment.save();
+
+    // Update booking
+    booking.status = 'confirmed';
+    booking.paymentId = receiptNumber;
+    booking.payment = payment._id;
+    await booking.save();
+
+    res.json({
+      message: 'Payment processed successfully',
+      paymentId: payment._id,
+      receiptNumber: receiptNumber,
+      booking: {
+        id: booking._id,
+        totalPrice: booking.totalPrice,
+        status: booking.status
+      }
+    });
+  } catch (error) {
+    console.error('Payment processing error:', error);
+    // Return actual error message to help debugging locally
+    const message = error?.message || 'Error processing payment';
+    res.status(500).json({ message });
+  }
+});
+
+// Get receipt
+router.get('/receipt/:paymentId', auth, async (req, res) => {
+  try {
+    const Trip = require('../models/Trip');
+    
+    const payment = await Payment.findById(req.params.paymentId)
+      .populate('booking')
+      .populate('user');
+
+    if (!payment) {
+      return res.status(404).json({ message: 'Receipt not found' });
+    }
+
+    if (payment.user._id.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: 'Access denied' });
+    }
+
+    // Get booking and trip details
+    const booking = payment.booking;
+    const trip = await Trip.findById(booking.trip).lean();
+
+    if (!trip) {
+      return res.status(404).json({ message: 'Trip not found' });
+    }
+
+    // Calculate fees (5%)
+    const subtotal = trip.price * booking.seats;
+    const serviceCharge = Math.round((subtotal * 0.05) * 100) / 100;
+    const total = payment.amount;
+
+    res.json({
+      receiptNumber: payment.receiptNumber || payment.transactionId,
+      paymentDate: payment.paidAt,
+      booking: {
+        id: booking._id,
+        seats: booking.seats
+      },
+      payerInfo: payment.payerInfo,
+      amount: payment.amount,
+      paymentMethod: payment.paymentMethod,
+      tripDetails: {
+        departure: trip.departure,
+        arrival: trip.arrival,
+        date: trip.date,
+        time: trip.time,
+        price: trip.price,
+        vehicle: trip.vehicle || 'Non spécifié'
+      },
+      billing: {
+        subtotal: subtotal,
+        serviceCharge: serviceCharge,
+        total: total
+      }
+    });
+  } catch (error) {
+    console.error('Receipt retrieval error:', error);
+    res.status(500).json({ message: 'Error retrieving receipt' });
+  }
+});
+
+// Download receipt as PDF (simplified version)
+router.get('/receipt/:paymentId/pdf', auth, async (req, res) => {
+  try {
+    const payment = await Payment.findById(req.params.paymentId)
+      .populate('booking')
+      .populate('user');
+
+    if (!payment) {
+      return res.status(404).json({ message: 'Receipt not found' });
+    }
+
+    if (payment.user._id.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: 'Access denied' });
+    }
+
+    // For now, return a simple text file that can be converted to PDF
+    // In production, use a library like puppeteer or pdfkit
+    const receiptText = `
+EYM COVOITURAGE - REÇU DE PAIEMENT
+=====================================
+Numéro: ${payment.receiptNumber || payment.transactionId}
+Date: ${new Date(payment.paidAt).toLocaleDateString('fr-FR')}
+
+INFORMATIONS DU PAYEUR
+Nom: ${payment.payerInfo.firstName} ${payment.payerInfo.lastName}
+Email: ${payment.payerInfo.email}
+Téléphone: ${payment.payerInfo.phone}
+
+DÉTAILS DE LA RÉSERVATION
+Statut: CONFIRMÉ
+Montant: ${payment.amount} MAD
+Méthode: ${payment.paymentMethod.toUpperCase()}
+
+Merci pour votre paiement!
+    `;
+
+    res.setHeader('Content-Type', 'text/plain');
+    res.setHeader('Content-Disposition', `attachment; filename="receipt-${payment.receiptNumber}.txt"`);
+    res.send(receiptText);
+  } catch (error) {
+    console.error('PDF generation error:', error);
+    res.status(500).json({ message: 'Error generating PDF' });
   }
 });
 

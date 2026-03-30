@@ -290,7 +290,7 @@ const tripSeeder = async () => {
     predefinedTrips.forEach((predefinedTrip, index) => {
       // Create multiple variations of each predefined trip
       for (let variation = 0; variation < 3; variation++) {
-        const daysFromNow = Math.floor(Math.random() * 60) + variation * 7; // Spread over 60 days
+        const daysFromNow = Math.floor(Math.random() * 180) + variation * 7; // Spread over 180 days
         const date = getRandomDate(daysFromNow);
         const time = getRandomTime();
         
@@ -329,7 +329,7 @@ const tripSeeder = async () => {
         arrival = cities[Math.floor(Math.random() * cities.length)];
       }
 
-      const daysFromNow = Math.floor(Math.random() * 60);
+      const daysFromNow = Math.floor(Math.random() * 180);
       const date = getRandomDate(daysFromNow);
       const time = getRandomTime();
       

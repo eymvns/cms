@@ -350,19 +350,113 @@
   margin: 0 0 20px 0;
 }
 
+/* Card Form Styles */
+.card-form-section {
+  padding: 30px 40px;
+  background: #f8fafc;
+  border-top: 1px solid #e5e7eb;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.card-form-section h3 {
+  margin: 0 0 20px 0;
+  color: #1f2937;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.card-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.full-width {
+  grid-column: 1 / -1;
+}
+
+.card-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.card-input-wrapper input {
+  width: 100%;
+}
+
+.card-type-icons {
+  position: absolute;
+  right: 16px;
+  display: flex;
+  gap: 6px;
+  font-size: 1.5rem;
+}
+
+.card-type-icons i {
+  color: #d1d5db;
+  transition: all 0.3s ease;
+}
+
+.card-type-icons i[class*="visa"] {
+  color: #1434cb;
+}
+
+.card-type-icons i[class*="mastercard"] {
+  color: #ff5f00;
+}
+
+.card-type-icons i[class*="amex"] {
+  color: #006fcf;
+}
+
+.form-group small {
+  margin-top: 4px;
+  color: #9ca3af;
+  font-size: 0.85rem;
+}
+
+.alert {
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  font-weight: 500;
+}
+
+.alert-error {
+  background: #fee2e2;
+  color: #991b1b;
+  border-left: 4px solid #dc2626;
+}
+
+.alert-success {
+  background: #dcfce7;
+  color: #166534;
+  border-left: 4px solid #22c55e;
+}
+
 .spinner {
-  width: 20px;
-  height: 20px;
-  border: 2px solid #ffffff;
-  border-top: 2px solid transparent;
+  width: 18px;
+  height: 18px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-top: 3px solid white;
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
 
-/* Responsive design */
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Responsive */
 @media (max-width: 768px) {
   .payment-page {
     padding: 10px;
+  }
+
+  .payment-container {
+    border-radius: 15px;
   }
 
   .payment-header {
@@ -370,12 +464,15 @@
   }
 
   .payment-header h1 {
-    font-size: 2rem;
+    font-size: 1.8rem;
   }
 
   .booking-summary,
+  .payer-info-section,
   .payment-methods,
-  .payment-actions {
+  .card-form-section,
+  .payment-actions,
+  .payment-security {
     padding: 20px;
   }
 
@@ -385,7 +482,11 @@
 
   .btn-primary,
   .btn-secondary {
-    width: 100%;
+    flex: 1 !important;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
   }
 
   .payment-security {
@@ -393,4 +494,46 @@
     gap: 15px;
     text-align: center;
   }
+
+  .summary-item,
+  .summary-item.total {
+    font-size: 0.95rem;
+  }
+
+  .payment-options {
+    grid-template-columns: 1fr;
+  }
+
+  .payment-option {
+    padding: 15px;
+  }
+
+  .payment-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 1.2rem;
+    margin-right: 15px;
+  }
+
+  .payment-info h4 {
+    font-size: 1rem;
+  }
+
+  .payment-info p {
+    font-size: 0.85rem;
+  }
+}
+
+.spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #ffffff;
+  border-top: 2px solid transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }

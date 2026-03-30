@@ -83,6 +83,11 @@ const paymentSchema = new mongoose.Schema({
     // Pour espèces
     cashReceived: Boolean
   },
+  // Numéro de reçu
+  receiptNumber: {
+    type: String,
+    default: null
+  },
   // Métadonnées
   metadata: {
     type: Map,

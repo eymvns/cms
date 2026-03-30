@@ -12,11 +12,22 @@ const Payment = () => {
   const [loading, setLoading] = useState(true);
   const [paymentMethod, setPaymentMethod] = useState('card');
   const [processing, setProcessing] = useState(false);
+  const [showCardForm, setShowCardForm] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+  
   const [payerInfo, setPayerInfo] = useState({
     firstName: '',
     lastName: '',
     email: '',
     phone: ''
+  });
+
+  const [cardData, setCardData] = useState({
+    cardName: '',
+    cardNumber: '',
+    expiryDate: '',
+    cvv: ''
   });
 
   const fetchBooking = useCallback(async () => {
@@ -39,7 +50,6 @@ const Payment = () => {
     }
     fetchBooking();
     
-    // Pré-remplir les informations du payeur avec les données de l'utilisateur
     if (user) {
       const nameParts = user.name?.split(' ') || [];
       setPayerInfo({
@@ -48,13 +58,111 @@ const Payment = () => {
         email: user.email || '',
         phone: user.phone || ''
       });
+      setCardData(prev => ({
+        ...prev,
+        cardName: user.name || ''
+      }));
     }
   }, [bookingId, isAuthenticated, navigate, fetchBooking, user]);
 
-  const handlePayment = async () => {
-    // Valider les informations du payeur
+  const handleCardInputChange = (e) => {
+    const { name, value } = e.target;
+    let formattedValue = value;
+
+    if (name === 'cardNumber') {
+      formattedValue = value.replace(/\s/g, '').replace(/(\d{4})/g, '$1 ').trim();
+    } else if (name === 'expiryDate') {
+      formattedValue = value.replace(/\D/g, '').slice(0, 4);
+      if (formattedValue.length >= 2) {
+        formattedValue = formattedValue.slice(0, 2) + '/' + formattedValue.slice(2);
+      }
+    } else if (name === 'cvv') {
+      formattedValue = value.replace(/\D/g, '').slice(0, 4);
+    }
+
+    setCardData(prev => ({
+      ...prev,
+      [name]: formattedValue
+    }));
+  };
+
+  const validateCardForm = () => {
+    if (!payerInfo.firstName || !payerInfo.lastName || !payerInfo.email || !payerInfo.phone) {
+      setError('Veuillez remplir tous les champs du payeur');
+      return false;
+    }
+
+    if (!cardData.cardName || !cardData.cardNumber || !cardData.expiryDate || !cardData.cvv) {
+      setError('Veuillez remplir tous les champs de la carte');
+      return false;
+    }
+
+    const cardNum = cardData.cardNumber.replace(/\s/g, '');
+    if (cardNum.length !== 16) {
+      setError('Le numéro de carte doit contenir 16 chiffres');
+      return false;
+    }
+
+    const [month, year] = cardData.expiryDate.split('/');
+    if (!month || !year || month < 1 || month > 12) {
+      setError('Date d\'expiration invalide (MM/YY)');
+      return false;
+    }
+
+    if (cardData.cvv.length < 3) {
+      setError('CVV invalide');
+      return false;
+    }
+
+    return true;
+  };
+
+  const handlePaymentCard = async (e) => {
+    e.preventDefault();
+    setError('');
+
+    if (!validateCardForm()) {
+      return;
+    }
+
+    setProcessing(true);
+    try {
+      const cardNum = cardData.cardNumber.replace(/\s/g, '');
+      
+      const response = await api.post('/payments/process-booking', {
+        bookingId,
+        paymentMethod: 'card',
+        payerInfo: {
+          firstName: payerInfo.firstName,
+          lastName: payerInfo.lastName,
+          email: payerInfo.email,
+          phone: payerInfo.phone
+        },
+        card: {
+          lastFour: cardNum.slice(-4),
+          holderName: cardData.cardName
+        }
+      });
+
+      setSuccess('✅ Paiement traité avec succès!');
+      setTimeout(() => {
+        if (response.data.paymentId) {
+          navigate(`/receipt/${response.data.paymentId}`);
+        } else {
+          navigate('/profile');
+        }
+      }, 1500);
+    } catch (error) {
+      console.error('Payment error:', error);
+      const errorMsg = error.response?.data?.message || error.message || 'Erreur lors du paiement';
+      setError(`❌ ${errorMsg}`);
+      setProcessing(false);
+    }
+  };
+
+  const handlePaymentOther = async () => {
     if (!payerInfo.firstName || !payerInfo.lastName || !payerInfo.email) {
-      alert('Veuillez remplir tous les champs obligatoires (Prénom, Nom, Email)');
+      alert('Veuillez remplir tous les champs obligatoires');
       return;
     }
 
@@ -67,44 +175,17 @@ const Payment = () => {
       });
 
       if (response.data.url) {
-        // Redirect to payment provider (Stripe)
         window.location.href = response.data.url;
       } else if (response.data.message) {
-        // Payment confirmed directly (PayPal, bank transfer, cash)
         alert(response.data.message);
-        navigate('/profile');
-      } else {
-        // Fallback - should not happen
-        alert('Paiement traité avec succès!');
         navigate('/profile');
       }
     } catch (error) {
       console.error('Payment error:', error);
-      alert('Erreur lors du paiement. Veuillez réessayer.');
+      const msg = error.response?.data?.message || error.message || 'Erreur lors du paiement. Veuillez réessayer.';
+      alert(msg);
     } finally {
       setProcessing(false);
-    }
-  };
-
-  const confirmPayment = async () => {
-    try {
-      await api.post('/payments/confirm-booking-payment', {
-        bookingId,
-        paymentMethod
-      });
-
-      let successMessage = 'Paiement confirmé avec succès!';
-      if (paymentMethod === 'cash') {
-        successMessage = 'Réservation confirmée! Vous paierez en espèces à bord du véhicule.';
-      } else if (paymentMethod === 'bank') {
-        successMessage = 'Demande de virement bancaire enregistrée. Vous recevrez les instructions par email.';
-      }
-
-      alert(successMessage);
-      navigate('/profile');
-    } catch (error) {
-      console.error('Confirmation error:', error);
-      alert('Erreur lors de la confirmation du paiement.');
     }
   };
 
@@ -149,7 +230,7 @@ const Payment = () => {
             </div>
             <div className="summary-item">
               <span>Destination:</span>
-              <span>{booking.trip.destination}</span>
+              <span>{booking.trip.arrival}</span>
             </div>
             <div className="summary-item">
               <span>Date:</span>
@@ -162,10 +243,6 @@ const Payment = () => {
             <div className="summary-item">
               <span>Places réservées:</span>
               <span>{booking.seats}</span>
-            </div>
-            <div className="summary-item">
-              <span>Conducteur:</span>
-              <span>{booking.trip?.driver?.name || 'Non spécifié'}</span>
             </div>
             <div className="summary-item total">
               <span>Total à payer:</span>
@@ -237,7 +314,10 @@ const Payment = () => {
           <div className="payment-options">
             <div
               className={`payment-option ${paymentMethod === 'card' ? 'selected' : ''}`}
-              onClick={() => setPaymentMethod('card')}
+              onClick={() => {
+                setPaymentMethod('card');
+                setShowCardForm(true);
+              }}
             >
               <div className="payment-icon">
                 <i className="fas fa-credit-card"></i>
@@ -253,7 +333,10 @@ const Payment = () => {
 
             <div
               className={`payment-option ${paymentMethod === 'paypal' ? 'selected' : ''}`}
-              onClick={() => setPaymentMethod('paypal')}
+              onClick={() => {
+                setPaymentMethod('paypal');
+                setShowCardForm(false);
+              }}
             >
               <div className="payment-icon paypal">
                 <i className="fab fa-paypal"></i>
@@ -269,7 +352,10 @@ const Payment = () => {
 
             <div
               className={`payment-option ${paymentMethod === 'bank' ? 'selected' : ''}`}
-              onClick={() => setPaymentMethod('bank')}
+              onClick={() => {
+                setPaymentMethod('bank');
+                setShowCardForm(false);
+              }}
             >
               <div className="payment-icon">
                 <i className="fas fa-university"></i>
@@ -285,7 +371,10 @@ const Payment = () => {
 
             <div
               className={`payment-option ${paymentMethod === 'cash' ? 'selected' : ''}`}
-              onClick={() => setPaymentMethod('cash')}
+              onClick={() => {
+                setPaymentMethod('cash');
+                setShowCardForm(false);
+              }}
             >
               <div className="payment-icon">
                 <i className="fas fa-money-bill-wave"></i>
@@ -301,29 +390,122 @@ const Payment = () => {
           </div>
         </div>
 
-        <div className="payment-actions">
-          <button
-            onClick={() => navigate(-1)}
-            className="btn-secondary"
-            disabled={processing}
-          >
-            Retour
-          </button>
-          <button
-            onClick={handlePayment}
-            className="btn-primary"
-            disabled={processing}
-          >
-            {processing ? (
-              <>
-                <div className="spinner"></div>
-                Traitement...
-              </>
-            ) : (
-              `Payer ${booking.totalPrice} MAD`
-            )}
-          </button>
-        </div>
+        {/* Formulaire de carte bancaire */}
+        {showCardForm && paymentMethod === 'card' && (
+          <div className="card-form-section">
+            <h3>Informations de la carte bancaire</h3>
+            <form onSubmit={handlePaymentCard} className="card-form">
+              {error && <div className="alert alert-error">{error}</div>}
+              {success && <div className="alert alert-success">{success}</div>}
+
+              <div className="form-group full-width">
+                <label>Nom sur la carte *</label>
+                <input
+                  type="text"
+                  name="cardName"
+                  value={cardData.cardName}
+                  onChange={handleCardInputChange}
+                  placeholder="Nom du titulaire"
+                  className="input-field"
+                  required
+                />
+              </div>
+
+              <div className="form-group full-width">
+                <label>Numéro de carte *</label>
+                <div className="card-input-wrapper">
+                  <input
+                    type="text"
+                    name="cardNumber"
+                    value={cardData.cardNumber}
+                    onChange={handleCardInputChange}
+                    placeholder="XXXX XXXX XXXX XXXX"
+                    maxLength="19"
+                    className="input-field"
+                    required
+                  />
+                  <div className="card-type-icons">
+                    {cardData.cardNumber.startsWith('4') && <i className="fab fa-cc-visa"></i>}
+                    {(cardData.cardNumber.startsWith('5') || cardData.cardNumber.startsWith('2')) && <i className="fab fa-cc-mastercard"></i>}
+                    {cardData.cardNumber.startsWith('3') && <i className="fab fa-cc-amex"></i>}
+                  </div>
+                </div>
+                <small>Format: 16 chiffres</small>
+              </div>
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Expiration (MM/YY) *</label>
+                  <input
+                    type="text"
+                    name="expiryDate"
+                    value={cardData.expiryDate}
+                    onChange={handleCardInputChange}
+                    placeholder="MM/YY"
+                    maxLength="5"
+                    className="input-field"
+                    required
+                  />
+                </div>
+                <div className="form-group">
+                  <label>CVV *</label>
+                  <input
+                    type="text"
+                    name="cvv"
+                    value={cardData.cvv}
+                    onChange={handleCardInputChange}
+                    placeholder="XXX"
+                    maxLength="4"
+                    className="input-field"
+                    required
+                  />
+                  <small>Code de sécurité au dos</small>
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                disabled={processing}
+                className="btn-primary full-width"
+              >
+                {processing ? (
+                  <>
+                    <div className="spinner"></div>
+                    Traitement...
+                  </>
+                ) : (
+                  `Payer ${booking.totalPrice} MAD`
+                )}
+              </button>
+            </form>
+          </div>
+        )}
+
+        {!showCardForm && (
+          <div className="payment-actions">
+            <button
+              onClick={() => navigate(-1)}
+              className="btn-secondary"
+              disabled={processing}
+            >
+              Retour
+            </button>
+            <button
+              onClick={handlePaymentOther}
+              className="btn-primary"
+              disabled={processing}
+            >
+              {processing ? (
+                <>
+                  <div className="spinner"></div>
+                  Traitement...
+                </>
+              ) : (
+                `Payer ${booking.totalPrice} MAD`
+              )}
+            </button>
+          </div>
+        )}
 
         <div className="payment-security">
           <div className="security-badges">

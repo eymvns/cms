@@ -1,0 +1,395 @@
+.receipt-container {
+  min-height: 100vh;
+  background: #f5f5f5;
+  padding: 20px;
+  font-family: 'Poppins', sans-serif;
+}
+
+.receipt-container.loading,
+.receipt-container.error {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.receipt-container.error {
+  color: #e74c3c;
+  font-size: 18px;
+}
+
+/* En-tête sans impression */
+.receipt-header.no-print {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.receipt-header.no-print h1 {
+  margin: 0;
+  color: #333;
+  font-size: 28px;
+}
+
+.receipt-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.receipt-actions button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-print {
+  background: #3498db;
+  color: white;
+}
+
+.btn-print:hover {
+  background: #2980b9;
+  transform: translateY(-2px);
+}
+
+.btn-download {
+  background: #27ae60;
+  color: white;
+}
+
+.btn-download:hover {
+  background: #229954;
+  transform: translateY(-2px);
+}
+
+.btn-back {
+  background: #95a5a6;
+  color: white;
+}
+
+.btn-back:hover {
+  background: #7f8c8d;
+  transform: translateY(-2px);
+}
+
+/* Contenu du reçu */
+.receipt-content {
+  background: white;
+  padding: 40px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+/* En-tête du reçu */
+.receipt-header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 30px;
+  padding-bottom: 30px;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.logo-section h2 {
+  margin: 0 0 5px 0;
+  color: #667eea;
+  font-size: 24px;
+}
+
+.logo-section p {
+  margin: 0;
+  color: #999;
+  font-size: 12px;
+}
+
+.status {
+  text-align: right;
+}
+
+.badge-success {
+  display: inline-block;
+  background: #d4edda;
+  color: #155724;
+  padding: 8px 15px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  border: 1px solid #c3e6cb;
+}
+
+/* Informations du reçu */
+.receipt-info {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 30px;
+  background: #f8f9fa;
+  padding: 15px;
+  border-radius: 6px;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 14px;
+}
+
+.info-row span:first-child {
+  color: #666;
+  font-weight: 500;
+}
+
+.info-row .value {
+  color: #333;
+  font-weight: 600;
+}
+
+/* Sections */
+.section {
+  margin-bottom: 30px;
+}
+
+.section h3 {
+  margin: 0 0 15px 0;
+  color: #333;
+  font-size: 16px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #667eea;
+}
+
+.info-block {
+  background: #f8f9fa;
+  padding: 15px;
+  border-radius: 6px;
+  line-height: 1.8;
+}
+
+.info-block p {
+  margin: 0;
+  font-size: 14px;
+  color: #333;
+}
+
+/* Détails du trajet */
+.trip-details {
+  background: #f8f9fa;
+  padding: 20px;
+  border-radius: 6px;
+}
+
+.trip-route {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.location {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.location .label {
+  font-size: 12px;
+  color: #999;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.location .value {
+  font-size: 16px;
+  color: #333;
+  font-weight: 600;
+}
+
+.arrow {
+  font-size: 24px;
+  color: #667eea;
+  font-weight: bold;
+}
+
+.trip-info {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+}
+
+.info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.info-item .label {
+  font-size: 12px;
+  color: #999;
+  font-weight: 500;
+}
+
+.info-item .value {
+  font-size: 14px;
+  color: #333;
+  font-weight: 600;
+}
+
+/* Tableau de facturation */
+.billing-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #f8f9fa;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.billing-table td {
+  padding: 12px 15px;
+  font-size: 14px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.billing-table tr:first-child td {
+  padding-top: 15px;
+}
+
+.billing-table tr:last-child td {
+  border-bottom: none;
+  padding-bottom: 15px;
+}
+
+.billing-table td:first-child {
+  color: #666;
+  font-weight: 500;
+}
+
+.billing-table td:last-child {
+  text-align: right;
+  color: #333;
+  font-weight: 600;
+}
+
+.total-row td {
+  border-top: 2px solid #667eea;
+  font-size: 16px;
+  color: #667eea;
+  font-weight: 700;
+}
+
+/* Conditions */
+.terms {
+  background: #f8f9fa;
+  padding: 15px;
+  border-radius: 6px;
+}
+
+.terms ul {
+  margin: 0;
+  padding-left: 25px;
+  font-size: 13px;
+  color: #666;
+  line-height: 1.8;
+}
+
+.terms li {
+  margin-bottom: 8px;
+}
+
+/* Footer */
+.receipt-footer {
+  text-align: center;
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 2px solid #f0f0f0;
+}
+
+.receipt-footer p {
+  margin: 5px 0;
+  color: #666;
+  font-size: 14px;
+}
+
+.receipt-footer .contact {
+  font-size: 12px;
+  color: #999;
+}
+
+/* Impression */
+@media print {
+  body {
+    background: white;
+  }
+
+  .no-print,
+  .receipt-header.no-print,
+  .receipt-actions {
+    display: none !important;
+  }
+
+  .receipt-container {
+    padding: 0;
+    background: white;
+  }
+
+  .receipt-content {
+    box-shadow: none;
+    padding: 20px;
+  }
+
+  .section h3 {
+    page-break-after: avoid;
+  }
+
+  .billing-table {
+    page-break-inside: avoid;
+  }
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .receipt-content {
+    padding: 20px;
+  }
+
+  .receipt-header-content {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .receipt-info {
+    grid-template-columns: 1fr;
+  }
+
+  .trip-route {
+    flex-direction: column;
+  }
+
+  .trip-info {
+    grid-template-columns: 1fr;
+  }
+
+  .receipt-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .receipt-actions button {
+    flex: 1;
+    font-size: 12px;
+  }
+}
